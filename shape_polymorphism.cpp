@@ -2,7 +2,7 @@
 
 class Shape {
 	public:
-	void virtual draw() {
+	virtual void draw() {
 		std::cout << "Drawing a generic shape" << std::endl;
 	}
 	virtual ~Shape() {}
