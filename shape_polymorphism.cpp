@@ -1,10 +1,9 @@
 #include <iostream>
-using namespace std;
 
 class Shape {
 	public:
 	void virtual draw() {
-		cout << "Drawing a generic shape" << endl;
+		std::cout << "Drawing a generic shape" << std::endl;
 	}
 	virtual ~Shape() {}
 };
@@ -15,7 +14,7 @@ class Circle: public Shape {
 		Circle(double r) : radius(r) {}
 		
 		void draw() override {
-			cout << "Drawing a circle with: " << radius << "cm radius" << endl;
+			std::cout << "Drawing a circle with: " << radius << "cm radius" << std::endl;
 		}
 };
 
@@ -25,7 +24,7 @@ class Square: public Shape {
 		Square(double s) : side(s) {}
 		
 		void draw() override {
-			cout << "Drawing a square with: " << side << "cm side" << endl;
+			std::cout << "Drawing a square with: " << side << "cm side" << std::endl;
 		}
 };
 
