@@ -4,9 +4,9 @@ using namespace std;
 
 class PaymentMethod {
     public:
-        virtual void pay(double amount) = 0; // pure virtual function
+        virtual void pay(double amount) = 0;
         virtual string getName() = 0;
-        virtual ~PaymentMethod() {}
+        virtual ~PaymentMethod() = 0;
 };
 
 class CreditCard : public PaymentMethod {
@@ -14,8 +14,8 @@ class CreditCard : public PaymentMethod {
         string cardNumber;
     public:
         CreditCard(string cardNum) : cardNumber(cardNum.substr(cardNum.length() - 4)) {}
-        void pay(double amount) {
-            cout << "Paid $" << amount << " using Credit Card ending with " << cardNumber << endl;
+        void pay(double amount) override {
+            cout << "Paid $" << amount << " using " << getName() << " ending with " << cardNumber << endl;
         }
         string getName() override {
             return "Credit Card";
@@ -27,8 +27,8 @@ class PayPal : public PaymentMethod {
         string email;
     public:
         PayPal(string e) : email(e) {}
-        void pay(double amount) {
-            cout << "Paid $" << amount << " using PayPal account: " << email << endl;
+        void pay(double amount) override {
+            cout << "Paid $" << amount << " using " << getName() << " account: " << email << endl;
         }
         string getName() override {
             return "PayPal";
@@ -38,9 +38,9 @@ class PayPal : public PaymentMethod {
 class Wallet : public PaymentMethod {
     private:
         double balance;
-        string owner;
+        string walletOwner;
     public:
-        Wallet(string owner, double initialBalance) : owner(owner), balance(initialBalance) {}
+        Wallet(string owner, double initialBalance) : walletOwner(owner), balance(initialBalance) {}
         void deposit(double amount) {
             if (amount > 0) balance += amount;
         }
@@ -54,8 +54,8 @@ class Wallet : public PaymentMethod {
         double getBalance() const {
             return balance;
         }
-        string getName() override {
-            return "Wallet of " + owner;
+        string getOwner() const {
+            return walletOwner;
         }
 };
 
@@ -74,11 +74,21 @@ class User {
             }
         }
 
-        string getWallet() {
-            cout << name << "'s wallet balance: " << wallet->getBalance() << endl;
-            return name + "'s wallet balance: " + to_string(wallet->getBalance());
+        Wallet& getWallet() const {
+            return *wallet;
         }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 class RegularUser : public User {
     public:
@@ -88,9 +98,9 @@ class RegularUser : public User {
             cout << name << " is a Regular user." << endl;
         }
 
-        virtual void makePayment(double amount) {
+        virtual void makePayment(PaymentMethod* method, double amount) {
             if (wallet && wallet->withdraw(amount)) {
-                cout << name << " paid " << amount << " using wallet." << endl;
+                cout << name << " paid " << amount << " using " << method << "." << endl;
             } else {
                 cout << name << " has insufficient balance to pay " << amount << "." << endl;
             }
@@ -124,6 +134,6 @@ int main() {
     user.displayRole();
     merchant.displayRole();
 
-    cout << "User balance before: " << user.getWallet().getBalance() << endl;
-    user.makePayment(card, 1500);
+    cout << "User balance before: " << user.getWallet()->getBalance() << endl;
+    user.makePayment(card, 2000);
 }
