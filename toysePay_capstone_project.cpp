@@ -35,24 +35,24 @@ class PayPal : public PaymentMethod {
         }
 };
 
-class Wallet : public PaymentMethod {
+class Wallet : PaymentMethod {
     private:
         double balance;
         string walletOwner;
     public:
         Wallet(string owner, double initialBalance) : walletOwner(owner), balance(initialBalance) {}
+
+        void pay(double amount) override {
+            withdraw(amount);
+        }
+
+        string getName() override { // from PaymentMethod
+            return "Wallet: " + walletOwner;
+        }
+
         void deposit(double amount) {
             if (amount > 0) balance += amount;
         }
-        
-        void pay(double amount) override {
-        	withdraw(amount);
-        }
-        
-        string getName() override {
-        	return "Wallet: " + walletOwner;
-        }
-        
         bool withdraw(double amount) {
             if (amount > 0 && amount <= balance) {
                 balance -= amount;
@@ -73,13 +73,12 @@ class User {
         string name;
         Wallet* wallet;
     public:
-        User(string name, double initialBalance) : name(name) {
-        	wallet = new Wallet(name, initialBalance);
+        User(string n, double initialBalance) : name(n) {
+            wallet = new Wallet(n, initialBalance);
         }
-        
         virtual void displayRole() = 0;
         virtual ~User() {
-        	delete wallet;
+            delete wallet;
         }
         
         void depositToWallet(double amount) {
@@ -91,9 +90,9 @@ class User {
         Wallet& getWallet() const {
             return *wallet;
         }
-        
-        string getName() {
-        	return name;
+
+        string getName() const {
+            return name;
         }
 };
 
@@ -105,15 +104,18 @@ class RegularUser : public User {
             cout << name << " is a Regular user." << endl;
         }
 
-        virtual void makePayment(PaymentMethod* method, double amount) {
+        virtual bool makePayment(PaymentMethod* method, double amount) {
             if (wallet && wallet->withdraw(amount)) {
                 method->pay(amount);
-                
                 cout << name << " paid " << amount << " using " << method->getName() << "." << endl;
                 cout << "New Balance: " << wallet->getBalance() << endl;
+                return true;
             } else {
                 cout << name << " has insufficient balance to pay " << amount << "." << endl;
+                cout << "Current Balance: " << wallet->getBalance() << endl;
+                return false;
             }
+            cout << endl;
         }
 };
 
@@ -121,10 +123,9 @@ class Merchant : public User {
     private:
         double commissionRate;
     public:
-        Merchant(string name, double initialBalance, double commissionRate) : User(name, initialBalance), commissionRate(0.02) {}
-        
+        Merchant(string name, double initialBalance) : User(name, initialBalance), commissionRate(0.02) {}
         virtual void displayRole() {
-            cout << name << " is a Merchant with commission rate of " << commissionRate * 100 << "%" << endl;
+            cout << name << " is a Merchant with commission rate: " << commissionRate * 100 << "%" << endl;
         }
         virtual void receivePayment(double amount) {
             double commission = amount * commissionRate;
@@ -137,43 +138,33 @@ class Merchant : public User {
 };
 
 int main() {
-    RegularUser user("Alice", 5000);
-    Merchant merchant("Bob's Store", 10000, 0.02);
+    cout << "ToysePay Digital Wallet" << endl;
+    cout << endl;
+    cout << endl;
+
+    RegularUser u("Alice", 5000);
+    Merchant m("Bob's Store", 10000);
 
     PaymentMethod* card = new CreditCard("1234567897889");
+    PaymentMethod* p = new PayPal("JohnDoe@example.com");
 
-    user.displayRole();
-    merchant.displayRole();
+    u.displayRole();
+    m.displayRole();
 
-    cout << "User balance before: " << user.getWallet().getBalance() << endl;
-    user.makePayment(card, 2000);
-}
-    private:
-        double commissionRate;
-    public:
-        Merchant(string name, double initialBalance, double commissionRate) : User(name, initialBalance), commissionRate(commissionRate) {}
-        virtual void displayRole() {
-            cout << name << " is a Merchant with commission rate: " << commissionRate << endl;
-        }
-        virtual void receivePayment(double amount) {
-            double commission = amount * commissionRate;
-            double netAmount = amount - commission;
-            if (wallet) {
-                wallet->deposit(netAmount);
-                cout << name << "received payment of " << netAmount << " after commission of " << commission << "." << endl;
-            }
-        }
-};
+    cout << endl;
 
-int main() {
-    RegularUser user("Alice", 5000);
-    Merchant merchant("Bob's Store", 10000, 0.1);
+    double amount = 2000;
 
-    PaymentMethod* card = new CreditCard("1234567897889");
+    cout << "User balance before: " << u.getWallet().getBalance() << endl;
+    if (u.makePayment(card, amount)) {
+        m.receivePayment(amount);
+    } else {
+        cout << "Failed. Insufficient fund." << endl;
+    }
 
-    user.displayRole();
-    merchant.displayRole();
+    cout << "User balance after: " << u.getWallet().getBalance() << endl;
+    cout << "Merchant balance after: " << m.getWallet().getBalance() << endl;
 
-    cout << "User balance before: " << user.getWallet()->getBalance() << endl;
-    user.makePayment(card, 2000);
+    delete card;
+    delete p;
 }
