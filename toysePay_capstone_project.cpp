@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include <ctime>
+#include <chrono>
+#include <vector>
 using namespace std;
 
 class PaymentMethod {
@@ -10,15 +13,14 @@ class PaymentMethod {
 };
 
 class CreditCard : public PaymentMethod {
-    private:
-        string cardNumber;
+    private: string last4;
     public:
-        CreditCard(string cardNum) : cardNumber(cardNum.substr(cardNum.length() - 4)) {}
+        CreditCard(string cardNum) : last4(cardNum.substr(cardNum.length() - 4)) {}
         void pay(double amount) override {
-            cout << "Paid $" << amount << " using " << getName() << " ending with " << cardNumber << endl;
+            cout << "[Payment Gateway] Charging $" << amount << " to card ending " << last4 << endl;
         }
         string getName() override {
-            return "Credit Card";
+            return "Credit Card ending " + last4;
         }
 };
 
@@ -28,27 +30,33 @@ class PayPal : public PaymentMethod {
     public:
         PayPal(string e) : email(e) {}
         void pay(double amount) override {
-            cout << "Paid $" << amount << " using " << getName() << " account: " << email << endl;
+            cout << "[Payment Gateway] Charging $" << amount << " to account with email " << email << endl;
         }
         string getName() override {
-            return "PayPal";
+            return "PayPal " + email;
         }
 };
 
-class Wallet : PaymentMethod {
+class BankTransfer: public PaymentMethod {
+    private:
+        string pin;
+    public:
+        BankTransfer(string p) : pin(p.substr(p.length() - 2)) {}
+        void pay(double amount) override {
+            cout << "[Payment Gateway] Charging $" << amount << " to account with pin ending " << pin << endl;
+        }
+        string getName() override {
+            return "Bank Transfer with pin ending " + pin;
+        }
+        
+};
+
+class Wallet {
     private:
         double balance;
         string walletOwner;
     public:
         Wallet(string owner, double initialBalance) : walletOwner(owner), balance(initialBalance) {}
-
-        void pay(double amount) override {
-            withdraw(amount);
-        }
-
-        string getName() override { // from PaymentMethod
-            return "Wallet: " + walletOwner;
-        }
 
         void deposit(double amount) {
             if (amount > 0) balance += amount;
@@ -137,6 +145,22 @@ class Merchant : public User {
         }
 };
 
+class Transaction {
+    private:
+        string from, to;
+        double amount;
+        string timeStamp;
+    public:
+        Transaction(string f, string t, double a) : from(f), to(t), amount(a) {
+            auto now = chrono::system_clock::now();
+            time_t t_now = chrono::system_clock::to_time_t(now);
+            timeStamp = ctime(&t_now);
+        }
+        void print() const {
+            cout << "[" << timeStamp.substr(0, timeStamp.length() - 1)
+<< "] " << from << " -> " << to << " : $" << amount << endl;        }
+};
+
 int main() {
     cout << "ToysePay Digital Wallet" << endl;
     cout << endl;
@@ -147,6 +171,7 @@ int main() {
 
     PaymentMethod* card = new CreditCard("1234567897889");
     PaymentMethod* p = new PayPal("JohnDoe@example.com");
+    PaymentMethod* tf = new BankTransfer("1234");
 
     u.displayRole();
     m.displayRole();
@@ -165,6 +190,12 @@ int main() {
     cout << "User balance after: " << u.getWallet().getBalance() << endl;
     cout << "Merchant balance after: " << m.getWallet().getBalance() << endl;
 
+    // Transaction history
+    vector<Transaction> history;
+    history.push_back(Transaction(u.getName(), m.getName(), amount));
+    for(auto &tx : history) tx.print();
+
     delete card;
     delete p;
+    delete tf;
 }
