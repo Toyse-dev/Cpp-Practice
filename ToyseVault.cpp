@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 
-class Credentials {
+class Credential {
     private:
         std::string site, username, password;
     public:
-        Credentials(std::string s, std::string u, std::string p) : site(s), username(u), password(p.substr(p.length() - 4)) {}
+        Credential(std::string s, std::string u, std::string p) : site(s), username(u), password(p.substr(p.length() - 4)) {}
         void display() const {
             std::cout << "Site name: " << site << std::endl;
             std::cout << "Username: " << username << std::endl;
@@ -23,6 +23,10 @@ class Credentials {
 
 class Vault {
     private:
-        std::vector <Credentials> items;
+        std::vector <Credential> items;
         std::string fileName;
+    public:
+        void add(const Credential& c) {
+            items.push_back(c);
+        }
 };
