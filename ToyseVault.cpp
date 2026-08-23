@@ -34,16 +34,33 @@ class Vault {
         size_t size() const {
             return items.size();
         }
+
+        void listAll() {
+            if (items.empty()) {
+                std::cout << "This vault is empty" << std::endl;
+                return;
+            }
+
+            std::cout << "---- Vault Items ----" << std::endl;
+            for (const auto& item : items) {
+                item.display();
+            }
+        }
 };
 
 int main() {
     Vault myVault;
 
     Credential cred1("Facebook", "Toyse", "12345678");
+    Credential cred2("Twitter", "Ayomi", "Ayomi12");
 
     myVault.add(cred1);
+    myVault.add(cred2);
 
     cred1.display();
+    cred2.display();
+
+    myVault.listAll();
 
     std::cout << "Vault size: " << myVault.size() << std::endl;
 
