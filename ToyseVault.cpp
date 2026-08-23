@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 class Credential {
     private:
@@ -44,6 +45,16 @@ class Vault {
             std::cout << "---- Vault Items ----" << std::endl;
             for (const auto& item : items) {
                 item.display();
+            }
+        }
+
+        void saveToFile() {
+            std::ofstream outFile(fileName);
+
+            if (outFile.is_open()) {
+                for (const auto& item : items) {
+                    outFile << item.display() << '\n';
+                }
             }
         }
 };
