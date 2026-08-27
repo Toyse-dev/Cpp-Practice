@@ -85,18 +85,45 @@ int main() {
     Credential cred1("Facebook", "Toyse", "12345678");
     Credential cred2("Twitter", "Ayomi", "Ayomi12");
 
-    myVault.add(cred1);
-    myVault.add(cred2);
-
-    cred1.display();
-    cred2.display();
-
-    myVault.listAll();
-
-    std::cout << "Vault size: " << myVault.size() << std::endl;
-
     myVault.saveToFile();
     myVault.loadFromFile();
+
+    int choice;
+
+    do {
+        std::cout << "---- MENU LOOP ----" << std::endl;
+        std::cout << "1. Add" << std::endl;
+        std::cout << "2. List" << std::endl;
+        std::cout << "3. Search" << std::endl;
+        std::cout << "4. Delete" << std::endl;
+        std::cout << "5. Exit" << std::endl;
+
+        std::cout << std::endl;
+
+        std::cout << "Choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                myVault.add(cred1);
+                myVault.add(cred2);
+                std::cout << std::endl;
+
+                break;
+            
+            case 2:
+                cred1.display();
+                cred2.display();
+                myVault.listAll();
+                std::cout << "Vault size: " << myVault.size() << std::endl;
+
+                std::cout << std::endl;
+
+                break;
+            default:
+                std::cout << "Invalid choice" << std::endl;
+        }
+    } while (choice != 6);
 
     return 0;
 }
