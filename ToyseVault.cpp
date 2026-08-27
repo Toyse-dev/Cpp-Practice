@@ -21,12 +21,16 @@ class Credential {
         std::string getSite() { return site; }
         std::string getUser() { return username; }
         std::string getPass() { return password; }
+
+        std::string makeString() const {
+        return site + "|" + username + "|" + password;
+    }
 };
 
 class Vault {
     private:
         std::vector <Credential> items;
-        std::string fileName;
+        std::string fileName = "vault.txt";
     public:
         void add(const Credential& c) {
             items.push_back(c);
@@ -53,9 +57,25 @@ class Vault {
 
             if (outFile.is_open()) {
                 for (const auto& item : items) {
-                    outFile << item.display() << '\n';
+                    outFile << item.makeString() << '\n';
                 }
+                outFile.close();
             }
+        }
+
+        void loadFromFile() {
+            std::ifstream inFile(fileName);
+
+            if (!inFile.is_open()) {
+                std::cerr << "Failed to read from file" << std::endl;
+            }
+
+            std::string line;
+
+            while (std::getline(inFile, line)) {
+                std::cout << line << std::endl;
+            }
+            inFile.close();
         }
 };
 
@@ -74,6 +94,9 @@ int main() {
     myVault.listAll();
 
     std::cout << "Vault size: " << myVault.size() << std::endl;
+
+    myVault.saveToFile();
+    myVault.loadFromFile();
 
     return 0;
 }
