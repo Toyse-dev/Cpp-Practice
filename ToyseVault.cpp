@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 class Credential {
     private:
@@ -18,9 +19,9 @@ class Credential {
                 std::cout << "Password: " << " ****" << pass << std::endl;
             }
         };
-        std::string getSite() { return site; }
-        std::string getUser() { return username; }
-        std::string getPass() { return password; }
+        std::string getSite() const { return site; }
+        std::string getUser() const { return username; }
+        std::string getPass() const { return password; }
 
         std::string makeString() const {
         return site + "|" + username + "|" + password;
@@ -77,6 +78,32 @@ class Vault {
             }
             inFile.close();
         }
+
+        void searchBySite(const std::string searchSite) {
+            bool found = false;
+            for (const auto& c : items) {
+                if (c.getSite() == searchSite) {
+                    c.display();
+                    std::cout << "---------------------" << std::endl;
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                std::cout << "No Credential found" << searchSite << std::endl;
+            }
+        }
+
+        void searchByUsername(const std::string searchUser) {
+            bool found = false;
+            for (const auto& c : items) {
+                if(c.getUser() == searchUser) {
+                    c.display();
+                    std::cout << "----------------------" << std::endl;
+                    found = true;
+                }
+            }
+        }
 };
 
 int main() {
@@ -84,6 +111,7 @@ int main() {
 
     Credential cred1("Facebook", "Toyse", "12345678");
     Credential cred2("Twitter", "Ayomi", "Ayomi12");
+    Credential cred3("Thread", "Ola", "88522225");
 
     myVault.saveToFile();
     myVault.loadFromFile();
@@ -107,7 +135,8 @@ int main() {
             case 1:
                 myVault.add(cred1);
                 myVault.add(cred2);
-                std::cout << std::endl;
+                myVault.add(cred3);
+                // std::cout << std::endl;
 
                 break;
             
@@ -120,6 +149,10 @@ int main() {
                 std::cout << std::endl;
 
                 break;
+
+            case 3:
+                myVault.searchBySite("Twitter");
+
             default:
                 std::cout << "Invalid choice" << std::endl;
         }
