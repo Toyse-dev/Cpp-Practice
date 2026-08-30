@@ -107,6 +107,14 @@ class Vault {
                 std::cout << "No username found " << searchUser << std::endl;
             }
         }
+
+        void deleteByUserName(const std::string deleteUser) {
+            for (const auto& c : items) {
+                if(c.getUser() == deleteUser) {
+                    items.erase(items.begin(), items.end());
+                }
+            }
+        }
 };
 
 int main() {
@@ -142,6 +150,7 @@ int main() {
 
                 std::cout << "Credentials Added" << std::endl;
                 std::cout << "-------------------------" << std::endl;
+                std::cout << std::endl;
 
                 break;
             
@@ -149,8 +158,8 @@ int main() {
                 cred1.display();
                 cred2.display();
                 myVault.listAll();
-                std::cout << "Vault size: " << myVault.size() << std::endl;
 
+                std::cout << "Vault size: " << myVault.size() << std::endl;
                 std::cout << std::endl;
 
                 break;
@@ -158,6 +167,22 @@ int main() {
             case 3:
                 myVault.searchBySite("Twitter");
                 myVault.searchByUsername("Ola");
+
+                std::cout << std::endl;
+
+                break;
+            
+            case 4:
+                myVault.deleteByUserName("Ola");
+
+                std::cout << "Credentials deleted" << std::endl;
+                std::cout << std::endl;
+
+                break;
+
+            case 5:
+                std::cout << "Goodbye!!" << std::endl;
+                return 0;
 
                 break;
 
