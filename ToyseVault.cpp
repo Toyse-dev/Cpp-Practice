@@ -90,7 +90,7 @@ class Vault {
             }
 
             if (!found) {
-                std::cout << "No Credential found" << searchSite << std::endl;
+                std::cout << "No Credential found " << searchSite << std::endl;
             }
         }
 
@@ -102,6 +102,9 @@ class Vault {
                     std::cout << "----------------------" << std::endl;
                     found = true;
                 }
+            }
+            if (!found) {
+                std::cout << "No username found " << searchUser << std::endl;
             }
         }
 };
@@ -136,7 +139,9 @@ int main() {
                 myVault.add(cred1);
                 myVault.add(cred2);
                 myVault.add(cred3);
-                // std::cout << std::endl;
+
+                std::cout << "Credentials Added" << std::endl;
+                std::cout << "-------------------------" << std::endl;
 
                 break;
             
@@ -152,6 +157,9 @@ int main() {
 
             case 3:
                 myVault.searchBySite("Twitter");
+                myVault.searchByUsername("Ola");
+
+                break;
 
             default:
                 std::cout << "Invalid choice" << std::endl;
