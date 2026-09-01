@@ -67,14 +67,21 @@ class Vault {
         void loadFromFile() {
             std::ifstream inFile(fileName);
 
-            if (!inFile.is_open()) {
-                std::cerr << "Failed to read from file" << std::endl;
-            }
+            if (!inFile.is_open()) return;
 
             std::string line;
 
             while (std::getline(inFile, line)) {
-                std::cout << line << std::endl;
+                if (line.empty()) continue;
+                
+                size_t pos1 = line.find("|");
+                size_t pos2 = line.find("|", pos1 + 1);
+
+                std::string site = line.substr(0, pos1);
+                std::string username = line.substr(pos1 + 1, pos2 - pos1 - 1);
+                std::string password = line.substr(pos2 + 1);
+
+                items.push_back(Credential(site, username, password));
             }
             inFile.close();
         }
@@ -94,38 +101,31 @@ class Vault {
             }
         }
 
-        void searchByUsername(const std::string searchUser) {
-            bool found = false;
-            for (const auto& c : items) {
-                if(c.getUser() == searchUser) {
-                    c.display();
-                    std::cout << "----------------------" << std::endl;
-                    found = true;
-                }
-            }
-            if (!found) {
-                std::cout << "No username found " << searchUser << std::endl;
-            }
-        }
+        // void searchByUsername(const std::string searchUser) {
+        //     bool found = false;
+        //     for (const auto& c : items) {
+        //         if(c.getUser() == searchUser) {
+        //             c.display();
+        //             std::cout << "----------------------" << std::endl;
+        //             found = true;
+        //         }
+        //     }
+        //     if (!found) {
+        //         std::cout << "No username found " << searchUser << std::endl;
+        //     }
+        // }
 
         void deleteByUserName(const std::string deleteUser) {
-            for (const auto& c : items) {
-                if(c.getUser() == deleteUser) {
-                    items.erase(items.begin(), items.end());
-                }
-            }
+            items.erase(
+                std::remove_if(items.begin(), items.end(), [&](const Credential& c) {
+                    return c.getUser() == deleteUser;;
+                }), items.end()
+            );
         }
 };
 
 int main() {
     Vault myVault;
-
-    Credential cred1("Facebook", "Toyse", "12345678");
-    Credential cred2("Twitter", "Ayomi", "Ayomi12");
-    Credential cred3("Thread", "Ola", "88522225");
-
-    myVault.saveToFile();
-    myVault.loadFromFile();
 
     int choice;
 
@@ -143,53 +143,71 @@ int main() {
         std::cin >> choice;
 
         switch (choice) {
-            case 1:
-                myVault.add(cred1);
-                myVault.add(cred2);
-                myVault.add(cred3);
+            case 1: {
+                std::string s, u, p;
+ 
+                std::cout << "Enter site name: "; std::cin >> s;
+                std::cout << "Enter username: "; std::cin >> u;
+                std::cout << "Enter password: "; std::cin >> p;
 
-                std::cout << "Credentials Added" << std::endl;
+                
+                myVault.add(Credential(s, u, p));
+                myVault.saveToFile();
+
+                std::cout << "Credentials Added!/n";
                 std::cout << "-------------------------" << std::endl;
                 std::cout << std::endl;
 
                 break;
+            }
             
-            case 2:
-                cred1.display();
-                cred2.display();
+            case 2: {
                 myVault.listAll();
 
                 std::cout << "Vault size: " << myVault.size() << std::endl;
                 std::cout << std::endl;
 
                 break;
+            }
 
-            case 3:
-                myVault.searchBySite("Twitter");
-                myVault.searchByUsername("Ola");
+            case 3: {
+                std::string searchTerm;
+
+                std::cout << "Enter site name to search: "; std::cin >> searchTerm;
+                myVault.searchBySite(searchTerm);
+                // myVault.searchByUsername();
 
                 std::cout << std::endl;
 
                 break;
+            }
             
-            case 4:
-                myVault.deleteByUserName("Ola");
+            case 4: {
+            std::string deleteTerm;
+
+            std::cout << "Enter word to delete: ";
+            std::cin >> deleteTerm;
+
+            myVault.deleteByUserName(deleteTerm);
+                // myVault.deleteByUserName("Ola");
 
                 std::cout << "Credentials deleted" << std::endl;
                 std::cout << std::endl;
 
                 break;
+            }
 
-            case 5:
+            case 5: {
                 std::cout << "Goodbye!!" << std::endl;
                 return 0;
 
                 break;
+            }
 
             default:
                 std::cout << "Invalid choice" << std::endl;
         }
-    } while (choice != 6);
+    } while (choice != 5);
 
     return 0;
 }
