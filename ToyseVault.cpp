@@ -86,10 +86,10 @@ class Vault {
             inFile.close();
         }
 
-        void searchBySite(const std::string searchSite) {
+        void searchBySite(const std::string query) {
             bool found = false;
             for (const auto& c : items) {
-                if (c.getSite() == searchSite) {
+                if (c.getSite() == query || c.getUser() == query) {
                     c.display();
                     std::cout << "---------------------" << std::endl;
                     found = true;
@@ -97,23 +97,9 @@ class Vault {
             }
 
             if (!found) {
-                std::cout << "No Credential found " << searchSite << std::endl;
+                std::cout << "No Credential found " << query << std::endl;
             }
         }
-
-        // void searchByUsername(const std::string searchUser) {
-        //     bool found = false;
-        //     for (const auto& c : items) {
-        //         if(c.getUser() == searchUser) {
-        //             c.display();
-        //             std::cout << "----------------------" << std::endl;
-        //             found = true;
-        //         }
-        //     }
-        //     if (!found) {
-        //         std::cout << "No username found " << searchUser << std::endl;
-        //     }
-        // }
 
         void deleteByUserName(const std::string deleteUser) {
             items.erase(
@@ -175,7 +161,6 @@ int main() {
 
                 std::cout << "Enter site name to search: "; std::cin >> searchTerm;
                 myVault.searchBySite(searchTerm);
-                // myVault.searchByUsername();
 
                 std::cout << std::endl;
 
@@ -189,8 +174,6 @@ int main() {
             std::cin >> deleteTerm;
 
             myVault.deleteByUserName(deleteTerm);
-                // myVault.deleteByUserName("Ola");
-
                 std::cout << "Credentials deleted" << std::endl;
                 std::cout << std::endl;
 
@@ -211,3 +194,8 @@ int main() {
 
     return 0;
 }
+
+// QUESTIONS:
+// Ho do I prevent duplicate sites?
+// What happens if vault.txtis corrupted?
+// Should Vault be responsible for file I/O or should I create a separate FileManager class? Why?
