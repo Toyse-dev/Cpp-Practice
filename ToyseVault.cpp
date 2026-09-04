@@ -77,6 +77,11 @@ class Vault {
                 size_t pos1 = line.find("|");
                 size_t pos2 = line.find("|", pos1 + 1);
 
+                if (pos1 == std::string::npos || pos2 == std::string::npos) {
+                    std::cout << "Skipping corrupted line: " << line << std::endl;
+                    continue;
+                }
+
                 std::string site = line.substr(0, pos1);
                 std::string username = line.substr(pos1 + 1, pos2 - pos1 - 1);
                 std::string password = line.substr(pos2 + 1);
@@ -107,11 +112,13 @@ class Vault {
                     return c.getUser() == deleteUser;;
                 }), items.end()
             );
+            saveToFile();
         }
 };
 
 int main() {
     Vault myVault;
+    myVault.loadFromFile();
 
     int choice;
 
@@ -140,7 +147,7 @@ int main() {
                 myVault.add(Credential(s, u, p));
                 myVault.saveToFile();
 
-                std::cout << "Credentials Added!/n";
+                std::cout << "Credentials Added!\n";
                 std::cout << "-------------------------" << std::endl;
                 std::cout << std::endl;
 
@@ -197,5 +204,26 @@ int main() {
 
 // QUESTIONS:
 // Ho do I prevent duplicate sites?
-// What happens if vault.txtis corrupted?
+// Answer: The best way is to check if the site already exists in the vault::add method before adding a new credentials.
+// Example: bool add(const Credential& c) {
+//     for (const auto& item : items) {
+//         if (item.getSite() == c.getSite() & item.getUser() == c.getUser()) {
+//             std::cout << "Credential already exists." << std::endl;
+//             return false;
+//         }
+//     };
+//     items.push_back(c);
+//     return true;
+// } 
+
+
+// What happens if vault.txt is corrupted?
+// Answer: The program will crash if the file is corrupted. To prevent this, we can add error handlers for example, using npos
+// Example: if (pos1 == std::string::npos || pos2 == std::string::npos) {
+//     std::cout << "Skipping corrupted line: " << line << std::endl;
+// }
+
+
 // Should Vault be responsible for file I/O or should I create a separate FileManager class? Why?
+// Answer: Vault should NOT handle I/O for clarity. This is called Single Responsibility Principle. Right now Vault does two jobs: holds data AND saves it. 
+// In a large program it would be split: FileManager::save(items, fileName) and FileManager::load(fileName) -> vector<Credential>
